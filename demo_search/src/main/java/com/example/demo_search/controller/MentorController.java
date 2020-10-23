@@ -153,4 +153,25 @@ public class MentorController {
         return lm;
 
     }
+
+//Rest end Point to add mentor calender
+
+	@PostMapping(value="/addmentorcalender",headers="Accept=application/json")
+	public ResponseEntity<Void> addMentorCalender(@RequestBody MentorCalender mentorCalender, UriComponentsBuilder ucBuilder){
+		System.out.println("Creating MentorCalender with id  "+mentorCalender.getId());
+		mentorCalenderService.createMentorCalender(mentorCalender);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setLocation(ucBuilder.path("/create_mentor/{id}").buildAndExpand(mentorCalender.getId()).toUri());
+		return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
+	}
+
+	//Rest end point to get mentor calender
+
+
+    @GetMapping(value="/getmentorcalender", headers="Accept=application/json")
+    public List<MentorCalender> getAllMentorCalender() {
+        List<MentorCalender> tasks=mentorCalenderService.getMentorCalender();
+        return tasks;
+
+    }
 }
