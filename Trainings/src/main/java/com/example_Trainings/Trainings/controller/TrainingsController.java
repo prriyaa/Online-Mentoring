@@ -2,6 +2,7 @@ package com.example_Trainings.Trainings.controller;
 
 
 
+import com.example_Trainings.Trainings.Model.Payment;
 import com.example_Trainings.Trainings.bean.Trainings;
 import com.example_Trainings.Trainings.service.TrainingsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +12,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 @RestController
@@ -154,7 +158,33 @@ public class TrainingsController {
             return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
         }
         trainings.setStatus("finalized");
-        trainings.setAmount_recieved(900.32);
+
+		/*RestTemplate restTemplate = new RestTemplate();
+
+		final String baseUrl = "http://localhost:9826/createpayment";
+		URI uri = null;
+		try {
+			uri = new URI(baseUrl);
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		ResponseEntity <Payment> result = restTemplate.postForEntity(uri, Payment.class);
+
+		//ResponseEntity <List> result = restTemplate.getForEntity(uri, List.class);
+		//List <Technology> tech1=result.getBody();
+		Payment payment=result.getBody();
+
+		//Verify request succeed
+		System.out.println("Status code: " + result.getStatusCodeValue());
+		//System.out.println("class type is :"+tech1.getClass().getName());
+		System.out.println("result body class is " + result.getBody().getClass().getName());
+		System.out.println("result: " + result.getBody());
+*/
+
+		//return payment;
+        //trainings.setAmount_recieved(900.32);
         trainingsService.update(trainings, trainings.getId());
         System.out.println("training finalized of learner having id:"+trainings.getUser_id());
         return new ResponseEntity<String>(HttpStatus.OK);

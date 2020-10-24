@@ -7,35 +7,36 @@ spring:
 #This is eureka client
 eureka:
   client:
-    register-with-eureka: true
+    register-with-eureka: false
     fetch-registry: true
     serviceUrl:
       defaultZone: http://localhost:9091/eureka/
-#register url to server    
-
+#register url to server
 
 instance:
   hostname: localhost
-  
+
 server:
   port: 8989
 
-#ribbon.ReadTimeout: 60000
 zuul:
   prefix: /mentorportal
   routes:
-#    userAccessService:
-#      path: /userservice/**
-#      service-id: USERACCESSSERVICE
-#    trainingsService:
-#      path: /trainingsService/**
-#      service-id: TRAININGSSERVICE
-     demo_searchService:
-       path: /demosearch/**
-       service-id: DEMOSEARCH
-#    xyzTechnologiesService:
- #     path: /xyzService/**
-  #    service-id: XYZTECHNOLOGIESSERVICE
+    demo_searchService:
+      path: /demo_searchService/**
+      service-id: DEMO_SEARCHSERVICE
+    trainingsService:
+      path: /trainingsService/**
+      service-id: TRAININGSSERVICE
+    skillTechnologiesService:
+      path: /skillTechService/**
+      service-id: SKILLTECHNOLOGIESSERVICE
+    demo_technologyService:
+      path: /demo_technologyService/**
+      service-id: DEMO_TECHNOLOGYSERVICE
+    demo_userService:
+      path: /demo_userService/**
+      service-id: DEMO_USERSERVICE
 #    mentorSkillCalendarService:
 #      path: /skillMentService/**
 #      service-id: MENTORSKILLCALENDARSERVICE
@@ -43,13 +44,5 @@ zuul:
 #      path: /paymentService/**
 #      service-id: PAYMENTSSERVICE
 
-# Increase the Hystrix timeout to 60s (globally)
-ribbon.ReadTimeout: 960000
-ribbon.ConnectTimeout: 960000
 
 
-
-
-     
-     
-      
