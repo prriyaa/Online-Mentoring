@@ -3,6 +3,7 @@ package main
 import (
         "context"
        "fmt"
+       "time"
       "log"
       "go.mongodb.org/mongo-driver/mongo"
       "go.mongodb.org/mongo-driver/bson"
@@ -19,7 +20,7 @@ MentorId int `json:"MentorId"`
 TrainingId int `json:"TrainingID"`
 Txntype string `json:"Txntype"`
 Amount string `json:"Amount"`
-Datetime string `json:"datetime"`
+Datetime time.Time `json:"Datetime"`
 Remarks string `json:"remarks"`
 }
 
@@ -77,19 +78,19 @@ fmt.Printf("Found:", elem)
 json.NewEncoder(w).Encode(results)
 }
 
-func GetPayment(w http.ResponseWriter,req *http.Request) {
+/*func GetPayment(w http.ResponseWriter,req *http.Request) {
 /*retrieve path parameter
 search in array for given id
 */
-vars := mux.Vars(req)
-idval = vars["id"]
+/*vars := mux.Vars(req)
+idval := vars["id"]
 
 for _,payment:= range AllPeople {
 if payment.Id == idval {
 json.NewEncoder(w).Encode(payment)
 }
 }
-}
+}*/
 
 func createPayment(w http.ResponseWriter,req *http.Request){
 //fmt.Printf(w,"in createPerson")
@@ -122,10 +123,10 @@ collection := client.Database("mydb").Collection("payment")
 AllPeople=append(AllPeople,ppayment)
 fmt.Fprintf(w,"created")
 }
-func updatePayment(w http.ResponseWriter,req *http.Request) {
+/*func updatePayment(w http.ResponseWriter,req *http.Request) {
     //fmt.Printf(w,"in createPerson")
     vars := mux.Vars(req)
-    idval = vars["id"]
+    idval := vars["id"]
 
     for _, payment := range AllPeople {
         if payment.Id == idval {
@@ -136,8 +137,8 @@ func updatePayment(w http.ResponseWriter,req *http.Request) {
         }
 
     }
-}
-func deletePayment(w http.ResponseWriter,req *http.Request) {
+}*/
+/*func deletePayment(w http.ResponseWriter,req *http.Request) {
     //fmt.Printf(w,"in createPerson")
     vars := mux.Vars(req)
     idval := vars["id"]
@@ -173,20 +174,20 @@ collection := client.Database("mydb").Collection("payment")
   } else {
       fmt.Println("Connection to MongoDB closed.")
   }
-}
+}*/
 
 
 func main() {
-AllPeople=[]Payment{
+/*AllPeople=[]Payment{
 Payment{Id:1,MentorId:1,TrainingId:1,Txntype:"type1",Amount:"989",Datetime:"10:10:2020",Remarks:"nice"},
-Payment{Id:2,MentorId:2,TrainingId:2,Txntype:"type2",Amount:"9892",Datetime:"12:12:2020",Remarks:"nice"}}
+Payment{Id:2,MentorId:2,TrainingId:2,Txntype:"type2",Amount:"9892",Datetime:"12:12:2020",Remarks:"nice"}}*/
 myRouter := mux.NewRouter().StrictSlash(true)
 myRouter.HandleFunc("/",homelink)
 myRouter.HandleFunc("/createpayment",createPayment).Methods("POST")
-myRouter.HandleFunc("/getpayment/{id}",GetPayment)
+//myRouter.HandleFunc("/getpayment/{id}",GetPayment)
 myRouter.HandleFunc("/allpayment",AllPayment)
-myRouter.HandleFunc("/updatepayment/{id}",updatePayment).Methods("PUT")
-myRouter.HandleFunc("/deletepayment/{id}",deletePayment).Methods("DELETE")
+//myRouter.HandleFunc("/updatepayment/{id}",updatePayment).Methods("PUT")
+//myRouter.HandleFunc("/deletepayment/{id}",deletePayment).Methods("DELETE")
 http.ListenAndServe(":9826",myRouter)
 }
 

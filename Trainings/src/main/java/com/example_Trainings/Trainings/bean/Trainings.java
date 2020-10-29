@@ -4,6 +4,10 @@ package com.example_Trainings.Trainings.bean;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 import javax.persistence.*;
 import java.sql.Time;
 import java.util.Date;
@@ -29,7 +33,7 @@ public class Trainings {
 	private long skill_id;
 
 	@Column(name = "status")
-	private String status;
+	private int status;
 
 	@Column(name = "progress")
 	private String progress;
@@ -38,31 +42,24 @@ public class Trainings {
 	private double rating;
 
 	@Column(name = "start_date")
-    @JsonFormat(pattern="yyyy-MM-dd")
-    private Date start_date;
+    //@JsonFormat(pattern="yyyy-MM-dd")
+    private LocalDate start_date;
 
 	@Column(name = "end_date")
-    @JsonFormat(pattern="yyyy-MM-dd")
-	private Date end_date;
+    //@JsonFormat(pattern="yyyy-MM-dd")
+	private LocalDate end_date;
 
 	@Column(name = "start_time")
-    @JsonFormat(pattern="HH-mm-ss")
-	private Time start_time;
+    //@JsonFormat(pattern="HH-mm-ss")
+	private LocalTime start_time;
 
 	@Column(name = "end_time")
-    @JsonFormat(pattern="HH-mm-ss")
-	private Time end_time;
+    //@JsonFormat(pattern="HH-mm-ss")
+	private LocalTime end_time;
 
 	@Column(name = "amount_recieved")
 	private double amount_recieved;
 
-	/*public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}*/
 
     public long getId() {
         return id;
@@ -96,11 +93,11 @@ public class Trainings {
         this.skill_id = skill_id;
     }
 
-    public String getStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 
@@ -120,36 +117,36 @@ public class Trainings {
         this.rating = rating;
     }
 
-    public Date getStart_date() {
+    public LocalDate getStart_date() {
         return start_date;
     }
 
-    public void setStart_date(Date start_date) {
-        this.start_date = start_date;
+    public void setStart_date() {
+        this.start_date = java.time.LocalDate.now();
     }
 
-    public Date getEnd_date() {
+    public LocalDate getEnd_date() {
         return end_date;
     }
 
-    public void setEnd_date(Date end_date) {
-        this.end_date = end_date;
+    public void setEnd_date() {
+        this.end_date = start_date.plusDays(1);
     }
 
-    public Time getStart_time() {
+    public LocalTime getStart_time() {
         return start_time;
     }
 
-    public void setStart_time(Time start_time) {
-        this.start_time = start_time;
+    public void setStart_time() {
+        this.start_time =java.time.LocalTime.now() ;
     }
 
-    public Time getEnd_time() {
+    public LocalTime getEnd_time() {
         return end_time;
     }
 
-    public void setEnd_time(Time end_time) {
-        this.end_time = end_time;
+    public void setEnd_time() {
+        this.end_time = start_time.plusHours(2);
     }
 
     public double getAmount_recieved() {

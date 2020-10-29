@@ -23,7 +23,7 @@ public class TrainingsServiceImp implements TrainingsService {
 	//@Autowired
 	//Technology1Repository repository;
 
-	/*public List<Trainings> getAllEmployees(Integer pageNo, Integer pageSize, String sortBy)
+	public List<Trainings> getAllTrainings(Integer pageNo, Integer pageSize, String sortBy)
 	{
 		Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
 
@@ -34,7 +34,7 @@ public class TrainingsServiceImp implements TrainingsService {
 		} else {
 			return new ArrayList<Trainings>();
 		}
-	}*/
+	}
 
 	public void createTrainings(Trainings trainings) {
 		// TODO Auto-generated method stub
@@ -68,8 +68,13 @@ public class TrainingsServiceImp implements TrainingsService {
 		tech.setProgress(trainings.getProgress());
 		return trainingsRepository.save(tech);
 	}
+	public void updateAmount(long id,double amount){
+		Trainings training = trainingsRepository.findById(id).get();
+		training.setAmount_recieved(amount);
+	}
 
-	public List<Trainings> findByStatus(String status)
+
+	public List<Trainings> findByStatus(int status)
 	{
 		return trainingsRepository.findByStatus(status);
 	}
@@ -79,34 +84,5 @@ public class TrainingsServiceImp implements TrainingsService {
 		return trainingsRepository.findByStatusAndMentorId(status,mentorId);
 	}
 
-	/*public List<User> findByNameAndCountry(String name, String country) {
-		return userRepository.findByNameAndCountry(name, country);
-	}
-	public List<User> findByName(String name)
-    {
-        return userRepository.findByName(name);
-    }
-    public List<User> Abc(String country)
-    {
-        List<Map<String,Object>> lmso=userRepository.findMno();
-       /* for(Map<String,Object> mso: lmso)
-        {
-            for(String key:mso.keySet())
-            {
-                System.out.println(key+"\t"+mso.get(key));
-            }
-        }*/
-       // Approach 2
-       /* for(Map<String,Object> mso: lmso)
-        {
-            mso.forEach((k,v)->System.out.println(k+"\t"+v));
-        }
-        return userRepository.findAbc("india");
-    }
-    public List<Object[]> findXyz()
-    {
-        List<Object[]> lmso = userRepository.findXyz();
-        lmso.forEach(mso -> {for(Object ob : mso) System.out.println("------"+ ob + "--------");});
-        return userRepository.findXyz();
-    }*/
+
 }

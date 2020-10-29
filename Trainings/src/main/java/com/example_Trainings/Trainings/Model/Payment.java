@@ -2,6 +2,8 @@ package com.example_Trainings.Trainings.Model;
 
 import org.springframework.data.annotation.Id;
 
+import java.time.LocalDateTime;
+
 public class Payment {
 
         private long Id;
@@ -9,7 +11,7 @@ public class Payment {
         private long  TrainingId;
         private String Txntype;
         private double Amount;
-        private String datetime;
+        private LocalDateTime datetime;
         private String Remarks;
 
     public long getId() {
@@ -52,12 +54,12 @@ public class Payment {
         Amount = amount;
     }
 
-    public String getDatetime() {
+    public LocalDateTime getDatetime() {
         return datetime;
     }
 
-    public void setDatetime(String datetime) {
-        this.datetime = datetime;
+    public void setDatetime() {
+        this.datetime=java.time.LocalDateTime.now();
     }
 
     public String getRemarks() {

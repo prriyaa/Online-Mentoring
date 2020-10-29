@@ -4,6 +4,8 @@ package com.example.demo_user.controller;
 
 import com.example.demo_user.bean.User;
 import com.example.demo_user.service.UsersService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -27,7 +29,7 @@ public class UsersController {
 	@Value("${abcd.efgh}")
 	String str;
 
-
+	private final Logger Log = LoggerFactory.getLogger(getClass());
 	@GetMapping
 	public ResponseEntity<List<User>> getAllUsers(
 			@RequestParam(defaultValue = "0") Integer pageNo,
@@ -35,6 +37,7 @@ public class UsersController {
 			@RequestParam(defaultValue = "id") String sortBy)
 	{
 		List<User> list = usersService.getAllUser(pageNo, pageSize, sortBy);
+		Log.info("String is"+str);
 		System.out.println("String is: "+str);
 		System.out.println("Message from company: "+str1);
 
@@ -43,9 +46,11 @@ public class UsersController {
 	
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<User> getUser(@PathVariable("id") long id) {
-        System.out.println("Fetching User with id " + id);
+		Log.info("fetching user with id"+id);
+        //System.out.println("Fetching User with id " + id);
         User user = usersService.findById(id);
         if (user == null) {
+        	Log.warn("you are trying to access null user");
             return new ResponseEntity<User>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<User>(user, HttpStatus.OK);
@@ -53,7 +58,8 @@ public class UsersController {
     
 	 @PostMapping(value="/create_user",headers="Accept=application/json")
 	 public ResponseEntity<Void> createUser(@RequestBody User user, UriComponentsBuilder ucBuilder){
-	     System.out.println("Creating User "+user.getFirstname());
+		Log.info("creating user with first name as"+user.getFirstname());
+	     //System.out.println("Creating User "+user.getFirstname());
 	     usersService.createUser(user);
 	     HttpHeaders headers = new HttpHeaders();
 	     headers.setLocation(ucBuilder.path("/user/{id}").buildAndExpand(user.getId()).toUri());
@@ -62,41 +68,20 @@ public class UsersController {
 
 	 @GetMapping(value="/get", headers="Accept=application/json")
 	 public List<User> getAllUser() {
+	 	Log.info("returning list of all users");
 	  List<User> tasks=usersService.getUser();
 	  return tasks;
 	
 	 }
 
-	 
-	/* @GetMapping(value="/getnamecountry/{name}/{country}", headers="Accept=application/json")
-	 public List<User> getByNameAndCountry(@PathVariable String name, @PathVariable String country) {
-	  List<User> tasks=userService.findByNameAndCountry(name, country);
-	  return tasks;
-	
-	 }
-	@GetMapping(value="/getname/{name}", headers="Accept=application/json")
-	public List<User> getByName(@PathVariable String name) {
-		List<User> lm=userService.findByName(name);
-		return lm;
-
-	}
-    @GetMapping(value="/getabc/{country}", headers="Accept=application/json")
-    public List<User> getAbc(@PathVariable String country) {
-        List<User> lm=userService.Abc("india");
-        return lm;
-
-    }
-    @GetMapping(value="/getxyz", headers="Accept=application/json")
-    public List<Object[]> getXyz() {
-	     return userService.findXyz();
-    }*/
 
 	@PutMapping(value="/update", headers="Accept=application/json")
 	public ResponseEntity<String> updateUser(@RequestBody User currentUser)
 	{
-		System.out.println("sd");
+		//System.out.println("sd");
 	User users = usersService.findById(currentUser.getId());
 	if (users==null) {
+		Log.error("you are accessing null user");
 		return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
 	}
 	usersService.update(currentUser, currentUser.getId());
@@ -106,7 +91,9 @@ public class UsersController {
 	@DeleteMapping(value="/{id}", headers ="Accept=application/json")
 	public ResponseEntity<User> deleteUser(@PathVariable("id") long id){
 		User user = usersService.findById(id);
+		Log.info("fetching user with id"+id);
 		if (user == null) {
+			Log.warn("you are accessing null user");
 			return new ResponseEntity<User>(HttpStatus.NOT_FOUND);
 		}
 		usersService.deleteUserById(id);
@@ -117,6 +104,7 @@ public class UsersController {
 	public ResponseEntity<User> updateUserPartially(@PathVariable("id") long id, @RequestBody User currentUser){
 		User user = usersService.findById(id);
 		if(user ==null){
+			Log.error("you are trying to update a null user");
 			return new ResponseEntity<User>(HttpStatus.NOT_FOUND);
 		}
 		User user1 =	usersService.updatePartially(currentUser, id);

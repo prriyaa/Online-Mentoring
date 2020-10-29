@@ -9,12 +9,13 @@ public interface TrainingsService {
 	public void createTrainings(Trainings trainings);
 	public List<Trainings> getTrainings();
 	public Trainings findById(long id);
-	public List<Trainings> findByStatus(String status);
+	public List<Trainings> findByStatus(int status);
 	public List<Trainings> findByStatusAndMentorId(String status,long mentorId);
 	public Trainings update(Trainings trainings, long l);
 	public void deleteTrainingsById(long id);
 	public Trainings updatePartially(Trainings trainings, long id);
-	//public List<Trainings> getAllEmployees(Integer pageNo, Integer pageSize, String sortBy);
+	public List<Trainings> getAllTrainings(Integer pageNo, Integer pageSize, String sortBy);
+	public void updateAmount(long id, double amount);
 	
 	/*public List<User> findByNameAndCountry(String name, String country);
 	public List<User> findByName(String name);

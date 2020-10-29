@@ -9,6 +9,9 @@ import com.example.demo_search.bean.MentorSkills;
 import com.example.demo_search.service.MentorCalenderService;
 import com.example.demo_search.service.MentorService;
 import com.example.demo_search.service.MentorSkillsService;
+//import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,6 +25,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+//import java.util.logging.Logger;
 
 @RestController
 @RequestMapping(value={"/search"})
@@ -34,12 +38,16 @@ public class MentorController {
 
 	@Autowired
 	MentorCalenderService mentorCalenderService;
+
+	private final Logger Log = LoggerFactory.getLogger(getClass());
+
 	
     @GetMapping(value = "/{mentor_id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Mentor> getMentorById(@PathVariable("id") long id) {
         System.out.println("Fetching Mentor with id " + id);
         Mentor mentor = mentorService.findById(id);
         if (mentor == null) {
+        	Log.error("given mentor with "+id+"is not present");
             return new ResponseEntity<Mentor>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<Mentor>(mentor, HttpStatus.OK);
@@ -61,10 +69,11 @@ public class MentorController {
         }
 
         ResponseEntity <User> result = restTemplate.getForEntity(uri, User.class);
-
-        //ResponseEntity <List> result = restTemplate.getForEntity(uri, List.class);
-        //List <Technology> tech1=result.getBody();
         User u=result.getBody();
+        if(u==null)
+		{
+			Log.warn("fetching the user which is not present");
+		}
 
         //Verify request succeed
         System.out.println("Status code: " + result.getStatusCodeValue());
@@ -79,6 +88,7 @@ public class MentorController {
 	@PostMapping(value="/create_mentor",headers="Accept=application/json")
 	 public ResponseEntity<Void> createMentor(@RequestBody Mentor mentor, UriComponentsBuilder ucBuilder){
 	     System.out.println("Creating Mentor with id  "+mentor.getId());
+	     Log.info("creating mentor with mentorid"+mentor.getId());
 	     mentorService.createMentor(mentor);
 	     HttpHeaders headers = new HttpHeaders();
 	     headers.setLocation(ucBuilder.path("/create_mentor/{id}").buildAndExpand(mentor.getId()).toUri());
@@ -88,32 +98,10 @@ public class MentorController {
 	 @GetMapping(value="/get_mentor", headers="Accept=application/json")
 	 public List<Mentor> getAllMentor() {
 	  List<Mentor> tasks=mentorService.getMentor();
+	  Log.info("The list of all mentors persent in mentor table is"+tasks);
 	  return tasks;
 	
 	 }
-	 
-	 /*@GetMapping(value="/getnamecountry/{name}/{country}", headers="Accept=application/json")
-	 public List<User> getByNameAndCountry(@PathVariable String name, @PathVariable String country) {
-	  List<User> tasks=userService.findByNameAndCountry(name, country);
-	  return tasks;
-	
-	 }
-	@GetMapping(value="/getname/{name}", headers="Accept=application/json")
-	public List<User> getByName(@PathVariable String name) {
-		List<User> lm=userService.findByName(name);
-		return lm;
-
-	}
-    @GetMapping(value="/getabc/{country}", headers="Accept=application/json")
-    public List<User> getAbc(@PathVariable String country) {
-        List<User> lm=userService.Abc("india");
-        return lm;
-
-    }
-    @GetMapping(value="/getxyz", headers="Accept=application/json")
-    public List<Object[]> getXyz() {
-	     return userService.findXyz();
-    }*/
 
 	@PutMapping(value="/update_mentor", headers="Accept=application/json")
 	public ResponseEntity<String> updateMentor(@RequestBody Mentor currentMentor)
@@ -121,19 +109,22 @@ public class MentorController {
 		System.out.println("sd");
 	Mentor mentor = mentorService.findById(currentMentor.getId());
 	if (mentor==null) {
+	    Log.warn("mentor with "+currentMentor.getId()+"is not present");
 		return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
 	}
 	mentorService.update(currentMentor, currentMentor.getId());
 	return new ResponseEntity<String>(HttpStatus.OK);
 	}
 	
-	@DeleteMapping(value="/{mentor_id}", headers ="Accept=application/json")
+	@DeleteMapping(value="/{mentor_id}/{id}", headers ="Accept=application/json")
 	public ResponseEntity<Mentor> deleteMentor(@PathVariable("id") long id){
 		Mentor mentor = mentorService.findById(id);
 		if (mentor == null) {
+		    Log.warn("deleting a mentor which is not present");
 			return new ResponseEntity<Mentor>(HttpStatus.NOT_FOUND);
 		}
 		mentorService.deleteMentorById(id);
+		Log.info("mentor with id "+id+ "is deleted ");
 		return new ResponseEntity<Mentor>(HttpStatus.NO_CONTENT);
 	}
 	
@@ -141,9 +132,11 @@ public class MentorController {
 	public ResponseEntity<Mentor> updateUserPartially(@PathVariable("id") long id, @RequestBody Mentor currentMentor){
 		Mentor mentor = mentorService.findById(id);
 		if(mentor ==null){
+		    Log.error("mentor with given id is not present");
 			return new ResponseEntity<Mentor>(HttpStatus.NOT_FOUND);
 		}
 		Mentor usr =	mentorService.updatePartially(currentMentor, id);
+		Log.info("updating mentor");
 		return new ResponseEntity<Mentor>(usr, HttpStatus.OK);
 	}
 	//get all mentor skills using mentor_id
@@ -158,6 +151,7 @@ public class MentorController {
 
 	@PostMapping(value="/addmentorcalender",headers="Accept=application/json")
 	public ResponseEntity<Void> addMentorCalender(@RequestBody MentorCalender mentorCalender, UriComponentsBuilder ucBuilder){
+	    Log.info("updating mentor calender");
 		System.out.println("Creating MentorCalender with id  "+mentorCalender.getId());
 		mentorCalenderService.createMentorCalender(mentorCalender);
 		HttpHeaders headers = new HttpHeaders();
@@ -170,6 +164,7 @@ public class MentorController {
 
     @GetMapping(value="/getmentorcalender", headers="Accept=application/json")
     public List<MentorCalender> getAllMentorCalender() {
+		Log.info("fetching mentor calender");
         List<MentorCalender> tasks=mentorCalenderService.getMentorCalender();
         return tasks;
 
