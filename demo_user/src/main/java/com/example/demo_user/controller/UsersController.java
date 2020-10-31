@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -55,15 +56,28 @@ public class UsersController {
         }
         return new ResponseEntity<User>(user, HttpStatus.OK);
     }
-    
+
+	@GetMapping(value = "/find/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public String getUser1(@PathVariable("id") long id) {
+		Log.info("fetching user with id"+id);
+		//System.out.println("Fetching User with id " + id);
+		User user = usersService.findById(id);
+		if (user == null) {
+			Log.warn("you are trying to access null user");
+			return "not found";
+			//return new ResponseEntity<User>(HttpStatus.NOT_FOUND);
+		}
+		return user.getFirstname();
+	}
 	 @PostMapping(value="/create_user",headers="Accept=application/json")
-	 public ResponseEntity<Void> createUser(@RequestBody User user, UriComponentsBuilder ucBuilder){
+	 public ResponseEntity<String> createUser(@RequestBody @Valid User user, UriComponentsBuilder ucBuilder){
 		Log.info("creating user with first name as"+user.getFirstname());
 	     //System.out.println("Creating User "+user.getFirstname());
 	     usersService.createUser(user);
 	     HttpHeaders headers = new HttpHeaders();
 	     headers.setLocation(ucBuilder.path("/user/{id}").buildAndExpand(user.getId()).toUri());
-	     return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
+	     //return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
+		 return ResponseEntity.ok("User data is valid");
 	 }
 
 	 @GetMapping(value="/get", headers="Accept=application/json")

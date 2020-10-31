@@ -47,18 +47,5 @@ public class AuthenticationController {
         return new ApiResponse<>(200, "success",new AuthToken(token, user.getUsername(), user.getRole()));
     }
 
-    /*@GetMapping("/authenticate")
-    public ResponseEntity<String> getRole(@RequestHeader("Authorization") String header)
-    {
-        String authToken = header.replace(TOKEN_PREFIX,"");
-        String username=jwtTokenUtil.getUsernameFromToken(authToken);
-        Log.info("username is : "+username);
-        User user=userService.findByUsername(username);
-        Log.info("user is : "+user);
-        String role=user.getRole();
-        System.out.println("role: "+role);
-        return new ResponseEntity<String>(role,new HttpHeaders(), HttpStatus.OK);
-    }*/
-
 
 }

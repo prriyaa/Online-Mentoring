@@ -2,28 +2,36 @@ package com.example_Trainings.Trainings.controller;
 
 
 
+import com.example_Trainings.Trainings.Model.LoginUser;
 import com.example_Trainings.Trainings.Model.MentorCalender;
 import com.example_Trainings.Trainings.Model.Payment;
+import com.example_Trainings.Trainings.ProducerEg;
 import com.example_Trainings.Trainings.bean.Trainings;
 import com.example_Trainings.Trainings.service.TrainingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.security.sasl.AuthenticationException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "")
 @RequestMapping(value={"/trainings"})
 public class TrainingsController {
 	@Autowired
 	TrainingsService trainingsService;
+	@Autowired
+	private JavaMailSender javaMailSender;
 
     private final Logger Log = LoggerFactory.getLogger(getClass());
 
@@ -128,6 +136,28 @@ public class TrainingsController {
 	  return tasks;
 	
 	 }
+	 //get all trainings only to mentor
+     @GetMapping(value="/getalltomentor", headers="Accept=application/json")
+     public List<Trainings> getAllTrainingsToMentor(@RequestBody LoginUser loginUser) throws AuthenticationException {
+
+         RestTemplate restTemplate = new RestTemplate();
+         final String baseUrl = "http://localhost:9829/token/generate-token";
+         URI uri = null;
+         try {
+             uri = new URI(baseUrl);
+         } catch (URISyntaxException e) {
+             // TODO Auto-generated catch block
+             e.printStackTrace();
+         }
+       ResponseEntity<LoginUser>result=  restTemplate.postForEntity(uri,loginUser, LoginUser.class);
+         String token=result.getBody().toString();
+         System.out.println("token is "+token);
+
+         Log.info("returning list of all ongoing trainings ");
+         List<Trainings> tasks=trainingsService.getTrainings();
+         return tasks;
+
+     }
 
 
 	@PutMapping(value="/update", headers="Accept=application/json")
@@ -148,9 +178,6 @@ public class TrainingsController {
     @PutMapping(value="/approve/{training_id}", headers="Accept=application/json")
     public ResponseEntity<String> approveTraining(@PathVariable long training_id,@RequestHeader ("Authorization") String header)
     {
-        //System.out.println("sd");
-
-		//@Autowired
 		RestTemplate restTemplate=new RestTemplate();
 
 		final String baseUrl121 = "http://localhost:9829/users/authorizing";
@@ -191,13 +218,21 @@ public class TrainingsController {
 			{
 				Log.info("you can't approve training because your role is : " +role);
 			}
+
+		SimpleMailMessage msg = new SimpleMailMessage();
+		msg.setTo("priya.yadav.nitkkr@gmail.com");
+
+		msg.setSubject("Regarding your proposed training");
+		msg.setText(" Spring Boot Email \n your training with id \t"+trainings.getId()+"is approved.");
+
+		javaMailSender.send(msg);
         return new ResponseEntity<String>(HttpStatus.OK);
 
     }
 
     //finalize training
     @PutMapping(value="/finalize/{training_id}", headers="Accept=application/json")
-    public ResponseEntity<String> finalizeTraining(@PathVariable long training_id,@RequestBody Payment payment)
+    public ResponseEntity<String> finalizeTraining(@PathVariable long training_id) throws Exception
     {
         //System.out.println("sd");
         Trainings trainings = trainingsService.findById(training_id);
@@ -208,12 +243,19 @@ public class TrainingsController {
         if(trainings.getStatus()==1) {
             trainings.setStatus(2);
         }
-        payment.setMentorId(trainings.getMentorId());
-        payment.setDatetime();
-        payment.setTrainingId(training_id);
+        Payment payments=new Payment();
+
+		payments.setId("" + trainings.getId()) ;
+		payments.setMId(" "+trainings.getMentorId());
+		payments.setUid(" "+trainings.getUser_id());
+		payments.setTid(" "+trainings.getId());
+		payments.setAmt(" "+2000);
+		payments.setDatetime("" + java.time.LocalDateTime.now());
+		payments.setRemarks("Paid");
+
 
 		RestTemplate restTemplate = new RestTemplate();
-		final String baseUrl = "http://localhost:9826/createpayment";
+		final String baseUrl = "http://localhost:9016/createPayment";
 		URI uri = null;
 		try {
 			uri = new URI(baseUrl);
@@ -222,48 +264,50 @@ public class TrainingsController {
 			e.printStackTrace();
 		}
 
-		 restTemplate.postForEntity(uri,payment, Payment.class);
+		 restTemplate.postForEntity(uri,payments, Payment.class);
         trainingsService.update(trainings, trainings.getId());
+        String msg="Training finalized for training having id is :"+trainings.getId()+"and user id is"+trainings.getUser_id();
+        ProducerEg.sendMsg(msg);
         System.out.println("training finalized of learner having id:"+trainings.getUser_id());
         return new ResponseEntity<String>(HttpStatus.OK);
 
     }
 //add mentor calender
-	@PutMapping(value="/updatecalender/{training_id}", headers="Accept=application/json")
-	public ResponseEntity<String> finalizeTraining1(@PathVariable long training_id)
-	{
-		//System.out.println("sd");
-		MentorCalender calender=new MentorCalender();
-		Trainings trainings = trainingsService.findById(training_id);
-		if (trainings==null) {
-			Log.error("you are trying to finalize empty training");
-			return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
-		}
-		trainings.setStatus(2);
+@PutMapping(value="/update/{training_id}", headers="Accept=application/json")
+public ResponseEntity<String> updateCalender(@PathVariable long training_id)
+{
+    //System.out.println("sd");
+    Trainings trainings = trainingsService.findById(training_id);
+    if (trainings==null) {
+        Log.error("you are trying to finalize empty training");
+        return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+    }
+        trainings.setStatus(2);
+    MentorCalender calender=new MentorCalender();
 
-		RestTemplate restTemplate = new RestTemplate();
-		final String baseUrl = "http://localhost:8986/search/addmentorcalender";
-		URI uri = null;
-		try {
-			uri = new URI(baseUrl);
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    calender.setMid(trainings.getMentorId());
+    calender.setId(7);
+    calender.setStart_time(trainings.getStart_time());
+    calender.setEnd_date(trainings.getEnd_date());
+    calender.setStart_time(trainings.getStart_time());
+    calender.setEnd_date(trainings.getEnd_date());
 
-		calender.setStart_date(trainings.getStart_date());
-		calender.setEnd_date(trainings.getEnd_date());
-		calender.setStart_time(trainings.getStart_time());
-		calender.setEnd_date(trainings.getEnd_date());
-		calender.setMid(trainings.getMentorId());
+    RestTemplate restTemplate = new RestTemplate();
+    final String baseUrl = "http://localhost:8986/search/addmentorcalender";
+    URI uri = null;
+    try {
+        uri = new URI(baseUrl);
+    } catch (URISyntaxException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    }
 
-		restTemplate.postForEntity(uri,calender, MentorCalender.class);
+    restTemplate.postForEntity(uri,calender, MentorCalender.class);
+    trainingsService.update(trainings, trainings.getId());
+    System.out.println("training finalized of learner having id:"+trainings.getUser_id());
+    return new ResponseEntity<>(HttpStatus.OK);
 
-		trainingsService.update(trainings, trainings.getId());
-		System.out.println("training finalized of learner having id:"+trainings.getUser_id());
-		return new ResponseEntity<String>(HttpStatus.OK);
-
-	}
+}
 	@DeleteMapping(value="/{id}", headers ="Accept=application/json")
 	public ResponseEntity<Trainings> deleteTrainings(@PathVariable("id") long id){
 		Trainings trainings = trainingsService.findById(id);

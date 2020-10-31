@@ -1,14 +1,16 @@
 package com.example.demo_user.bean;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.util.Date;
+
 
 
 @Entity
 @Table(name="users")
-//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User {
 
 	@Id
@@ -21,12 +23,17 @@ public class User {
 	@Column(name="password")
 	private String password;
 
+	@NotEmpty(message = "First name is required")
 	@Column(name="firstname")
 	private String firstname;
 
+	@NotNull(message="Last name cannot be null")
 	@Column(name="lastname")
 	private String lastname;
 
+    @NotEmpty(message = "Phone number is required")
+    @Pattern(regexp="^\\(?(\\d{3})\\)?[- ]?(\\d{3})[- ]?(\\d{4})$",
+            message="Mobile number is invalid")
 	@Column(name="contactno")
 	private String contactno;
 
@@ -42,6 +49,19 @@ public class User {
 
 	@Column(name="active")
 	private boolean active;
+
+	@OneToOne(cascade = CascadeType.ALL)
+	private Address address;
+
+
+	public Address getAddress() {
+		return address;
+	}
+
+	public void setAddress(Address address) {
+		this.address = address;
+	}
+
 
 	public long getId() {
 		return id;

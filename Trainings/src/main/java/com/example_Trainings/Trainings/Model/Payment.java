@@ -6,67 +6,67 @@ import java.time.LocalDateTime;
 
 public class Payment {
 
-        private long Id;
-        private long MentorId;
-        private long  TrainingId;
-        private String Txntype;
-        private double Amount;
-        private LocalDateTime datetime;
-        private String Remarks;
+        private String Id;
+        private String MId;
+        private String  Tid;
+        private String  Uid;
+        private String  Amt;
+        private String  Datetime;
+        private String  remarks;
 
-    public long getId() {
+    public String getId() {
         return Id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         Id = id;
     }
 
-    public long getMentorId() {
-        return MentorId;
+    public String getMId() {
+        return MId;
     }
 
-    public void setMentorId(long mentorId) {
-        MentorId = mentorId;
+    public void setMId(String MId) {
+        this.MId = MId;
     }
 
-    public long getTrainingId() {
-        return TrainingId;
+    public String getTid() {
+        return Tid;
     }
 
-    public void setTrainingId(long trainingId) {
-        TrainingId = trainingId;
+    public void setTid(String tid) {
+        Tid = tid;
     }
 
-    public String getTxntype() {
-        return Txntype;
+    public String getUid() {
+        return Uid;
     }
 
-    public void setTxntype(String txntype) {
-        Txntype = txntype;
+    public void setUid(String uid) {
+        Uid = uid;
     }
 
-    public double getAmount() {
-        return Amount;
+    public String getAmt() {
+        return Amt;
     }
 
-    public void setAmount(double amount) {
-        Amount = amount;
+    public void setAmt(String amt) {
+        Amt = amt;
     }
 
-    public LocalDateTime getDatetime() {
-        return datetime;
+    public String getDatetime() {
+        return Datetime;
     }
 
-    public void setDatetime() {
-        this.datetime=java.time.LocalDateTime.now();
+    public void setDatetime(String datetime) {
+        Datetime = datetime;
     }
 
     public String getRemarks() {
-        return Remarks;
+        return remarks;
     }
 
     public void setRemarks(String remarks) {
-        Remarks = remarks;
+        this.remarks = remarks;
     }
 }
