@@ -8,13 +8,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Base64;
 import java.util.List;
 
@@ -60,13 +60,41 @@ public class TechnologyController {
     }
     
 	 @PostMapping(value="/create",headers="Accept=application/json")
-	 public ResponseEntity<Void> createTechnology(@RequestBody Technology technology, UriComponentsBuilder ucBuilder){
-	    Log.info("Creating Technology "+technology.getName());
-	     //System.out.println("Creating User "+technology.getName());
-	     technologyService.createTechnology(technology);
-	     HttpHeaders headers = new HttpHeaders();
-	     headers.setLocation(ucBuilder.path("/user/{id}").buildAndExpand(technology.getId()).toUri());
-	     return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
+	 public ResponseEntity<Void> createTechnology(@RequestBody Technology technology,@RequestHeader ("Authorization") String header){
+         RestTemplate restTemplate=new RestTemplate();
+
+         final String baseUrl121 = "http://localhost:9879/api/test/admin";
+         URI uri121 = null;
+         try {
+             uri121 = new URI(baseUrl121);
+         } catch (URISyntaxException e) {
+             // TODO Auto-generated catch block
+             e.printStackTrace();
+         }
+         HttpHeaders headers = new HttpHeaders();
+         headers.set("Authorization", header);
+         HttpEntity entity = new HttpEntity(headers);
+         ResponseEntity<String> res = restTemplate.exchange(
+                 uri121, HttpMethod.GET, entity,
+                 String.class);
+         String role= res.getBody().toString();
+         Log.info("Your role is : "+role);
+
+         String role1="Admin ";
+
+         HttpHeaders header1 = new HttpHeaders();
+         if(role.equals(role1)) {
+             Log.info("Creating Technology "+technology.getName());
+             //System.out.println("Creating User "+technology.getName());
+             technologyService.createTechnology(technology);
+             return new ResponseEntity<Void>(header1, HttpStatus.CREATED);
+         }
+         else
+         {
+             Log.info("you can't get training details because your role is : " +role);
+             return new ResponseEntity<Void>(header1, HttpStatus.NOT_FOUND);
+         }
+
 	 }
 
 
@@ -82,7 +110,7 @@ public class TechnologyController {
     public List<Technology> searchSkill(@PathVariable String name) {
 		//String encodedString = Base64.getEncoder().encodeToString(name.getBytes());
 
-        Log.info("fetching information gof skill"+name);
+        Log.info("fetching information of skill "+name);
 		List<Technology> lm=technologyService.findByName(name);
         return lm;
 

@@ -37,6 +37,9 @@ zuul:
     demo_userService:
       path: /demo_userService/**
       service-id: DEMO_USERSERVICE
+    security_userService:
+          path: /security_userService/**
+          service-id: SECURITY_USERSERVICE
 #    mentorSkillCalendarService:
 #      path: /skillMentService/**
 #      service-id: MENTORSKILLCALENDARSERVICE

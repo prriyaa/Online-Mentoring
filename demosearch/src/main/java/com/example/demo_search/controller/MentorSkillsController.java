@@ -192,9 +192,10 @@ public class MentorSkillsController {
 
 	//get first_name last_name from user microservice
 	@GetMapping("/get_mentor_list9/{name}")
-	public ArrayList<User> met299(@PathVariable String name) {
+	public ArrayList<String> met299(@PathVariable String name) {
 		RestTemplate restTemplate = new RestTemplate();
 
+		ArrayList<String> names = new ArrayList<>();
 		final String baseUrl = "http://localhost:8983/technology/getname/" + name;
 		URI uri = null;
 		try {
@@ -203,16 +204,31 @@ public class MentorSkillsController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
 		ResponseEntity<Technology[]> result = restTemplate.getForEntity(uri, Technology[].class);
 		ArrayList<ArrayList<MentorSkills>> list = new ArrayList<ArrayList<MentorSkills>>();
 		for (Technology t : result.getBody()) {
 			long skill_id = t.getId();
 			ArrayList<MentorSkills> mentor = mentorSkillsService.findBySid(skill_id);
-			list.add(mentor);
+			for (MentorSkills mSkills : mentor) {
+				long mid = mSkills.getMid();
+				RestTemplate restTemplate1 = new RestTemplate();
+
+				final String baseUrl1 = "http://localhost:8987/user/find/" + mid;
+				URI uri1 = null;
+				try {
+					uri1 = new URI(baseUrl1);
+				} catch (URISyntaxException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				ResponseEntity<String> result1 = restTemplate1.getForEntity(uri1, String.class);
+				names.add(result1.getBody());
+			}
 		}
-        ArrayList<User> list1 = new ArrayList<>();
-		Log.info("printing first name and last name of mentor");
-		return list1;
+		Log.info("mentors are :"+names);
+
+		return names;
 	}
 }
-
